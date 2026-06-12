@@ -38,7 +38,7 @@ class Seq2Seq(nn.Module):
         Returns:
             mask: shape (batch, src_len), 1 for real tokens, 0 for <PAD>
         """
-        # TODO: return (src != self.pad_idx).int()  (or similar)
+        # TODO: create a mask where positions of <PAD> tokens in src are 0, and others are 1
         raise NotImplementedError
 
     def forward(self, src: torch.Tensor, src_lens: torch.Tensor, tgt: torch.Tensor, teacher_forcing_ratio: float = 0.5):
@@ -63,25 +63,14 @@ class Seq2Seq(nn.Module):
         output_dim = self.decoder.output_dim
 
         # TODO 1: Run the encoder to get encoder_outputs and the initial decoder hidden state
-        #   encoder_outputs, hidden = self.encoder(src, src_lens)
 
         # TODO 2: Create the source mask for attention
-        #   mask = self.create_mask(src)
 
         # TODO 3: Prepare a tensor to store decoder outputs at each timestep
-        #   outputs = torch.zeros(batch_size, tgt_len, output_dim).to(self.device)
 
         # TODO 4: First input to the decoder is the <SOS> token (tgt[:, 0])
-        #   input_token = tgt[:, 0]
 
         # TODO 5: Loop over target timesteps (from 1 to tgt_len - 1):
-        #   for t in range(1, tgt_len):
-        #       - call self.decoder(input_token, hidden, encoder_outputs, mask)
-        #       - store the prediction in outputs[:, t, :]
-        #       - decide next input_token:
-        #           * with probability teacher_forcing_ratio -> use tgt[:, t] (ground truth)
-        #           * otherwise -> use the model's own argmax prediction
-        #         (use `random.random() < teacher_forcing_ratio`)
 
         # TODO 6: Return outputs
 
@@ -107,22 +96,15 @@ class Seq2Seq(nn.Module):
         batch_size = src.size(0)
 
         # TODO 1: Run the encoder
-        #   encoder_outputs, hidden = self.encoder(src, src_lens)
 
         # TODO 2: Create source mask
-        #   mask = self.create_mask(src)
 
         # TODO 3: Start with <SOS> token for every sequence in the batch
-        #   input_token = torch.tensor([self.sos_idx] * batch_size).to(self.device)
 
         # TODO 4: Loop up to max_len steps:
         #   - call decoder to get prediction, hidden, attn_weights
         #   - take argmax to get the next token
         #   - store predicted tokens and attention weights
-        #   - (optional but recommended) stop early if all sequences have produced <EOS>
-        #     -- careful: with batching, different sequences may finish at different times.
-        #     A simple approach for now: just generate max_len tokens and post-process
-        #     (truncate at first <EOS>) afterwards.
 
         # TODO 5: Return the generated token ids and attention weights
 

@@ -55,8 +55,7 @@ class BahdanauAttention(nn.Module):
         dec_proj = self.dec_proj(decoder_hidden).unsqueeze(1).repeat(1, src_len, 1) # Project decoder hidden state and repeat across src_len
         enc_proj = self.enc_proj(encoder_outputs) # Project encoder outputs
 
-        # 2: Compute energy = tanh(enc_proj(encoder_outputs) + dec_proj(decoder_hidden_expanded))
-        #   shape should be (batch, src_len, attn_dim)
+        # 2: Compute energy = tanh(enc_proj(encoder_outputs) + dec_proj(decoder_hidden_expanded)) shape should be (batch, src_len, attn_dim)
         
         energy = torch.tanh(enc_proj + dec_proj) # Compute energy (shape : (batch, src_len, attn_dim))
 
@@ -66,17 +65,14 @@ class BahdanauAttention(nn.Module):
         
         # 4: If mask is provided, set scores at padded positions to -inf (or a very large negative number)
         #   before softmax, so they get ~0 weight.
-        #   e.g. scores = scores.masked_fill(mask == 0, -1e10)
         
         if mask is not None:
             scores = scores.masked_fill(mask == 0, -1e10)        
 
         # 5: Apply softmax over the src_len dimension to get attn_weights
-        
         attn_weights = F.softmax(scores, dim=1)
         
-        # 6: Compute context vector as weighted sum:
-        #   context = sum_i attn_weights[i] * encoder_outputs[i]
-        
+        # 6: Compute context vector as weighted sum:        
         context = torch.bmm(attn_weights.unsqueeze(1), encoder_outputs).squeeze(1)
+        
         return context, attn_weights
