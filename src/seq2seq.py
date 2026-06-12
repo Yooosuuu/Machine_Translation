@@ -38,8 +38,8 @@ class Seq2Seq(nn.Module):
         Returns:
             mask: shape (batch, src_len), 1 for real tokens, 0 for <PAD>
         """
-        # TODO: create a mask where positions of <PAD> tokens in src are 0, and others are 1
-        raise NotImplementedError
+        mask = (src != self.pad_idx).int()
+        return mask
 
     def forward(self, src: torch.Tensor, src_lens: torch.Tensor, tgt: torch.Tensor, teacher_forcing_ratio: float = 0.5):
         """
@@ -61,20 +61,17 @@ class Seq2Seq(nn.Module):
         batch_size = src.size(0)
         tgt_len = tgt.size(1)
         output_dim = self.decoder.output_dim
-
-        # TODO 1: Run the encoder to get encoder_outputs and the initial decoder hidden state
-
-        # TODO 2: Create the source mask for attention
-
-        # TODO 3: Prepare a tensor to store decoder outputs at each timestep
-
-        # TODO 4: First input to the decoder is the <SOS> token (tgt[:, 0])
-
-        # TODO 5: Loop over target timesteps (from 1 to tgt_len - 1):
-
-        # TODO 6: Return outputs
-
-        raise NotImplementedError
+        encoder_outputs, hidden = self.encoder(src, src_lens)
+        mask = self.create_mask(src)
+        outputs = torch.zeros(batch_size, tgt_len, output_dim).to(self.device)
+        input_token = tgt[:, 0]
+        for t in range(1, tgt_len):
+            prediction, hidden, _ = self.decoder(input_token, hidden, encoder_outputs, mask)
+            outputs[:, t, :] = prediction
+            top1 = prediction.argmax(1)
+            teacher_force = random.random() < teacher_forcing_ratio
+            input_token = tgt[:, t] if teacher_force else top1
+        return outputs
 
     @torch.no_grad()
     def translate(self, src: torch.Tensor, src_lens: torch.Tensor, max_len: int = 50):
@@ -94,20 +91,18 @@ class Seq2Seq(nn.Module):
         """
         self.eval()
         batch_size = src.size(0)
-
-        # TODO 1: Run the encoder
-
-        # TODO 2: Create source mask
-
-        # TODO 3: Start with <SOS> token for every sequence in the batch
-
-        # TODO 4: Loop up to max_len steps:
-        #   - call decoder to get prediction, hidden, attn_weights
-        #   - take argmax to get the next token
-        #   - store predicted tokens and attention weights
-
-        # TODO 5: Return the generated token ids and attention weights
-
-        raise NotImplementedError
+        encoder_outputs, hidden = self.encoder(src, src_lens)
+        mask = self.create_mask(src)
+        input_token = torch.full((batch_size,), self.sos_idx, dtype=torch.long, device=self.device)
+        translations = []
+        attentions = []
+        for _ in range(max_len):
+            prediction, hidden, attn_weights = self.decoder(input_token, hidden, encoder_outputs, mask)
+            input_token = prediction.argmax(1)
+            translations.append(input_token)
+            attentions.append(attn_weights)
+        translations = torch.stack(translations, dim=1)
+        attentions = torch.stack(attentions, dim=1)
+        return translations, attentions
 
     # TODO (optional, later): implement beam_search() here for improved decoding quality

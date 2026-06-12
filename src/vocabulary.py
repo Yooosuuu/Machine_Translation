@@ -32,7 +32,6 @@ class Vocabulary:
         tokens.sort(key=lambda t: (-self.freqs[t], t))
         if self.max_size:
             tokens = tokens[: self.max_size - len(specials)]
-
         self.id2token = specials + tokens
         self.token2id = {t: i for i, t in enumerate(self.id2token)}
 

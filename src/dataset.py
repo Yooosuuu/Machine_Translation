@@ -73,7 +73,6 @@ def train_val_test_split(data: List, ratios=(0.9, 0.05, 0.05), seed: int = 42):
 
 class TranslationDataset(Dataset):
     """"Dataset for machine translation, holds pairs of (src_ids, tgt_ids) where each is a list of token ids."""
-    
     def __init__(self, pairs: List[Tuple[List[int], List[int]]]):
         self.pairs = pairs
 
