@@ -67,12 +67,12 @@ class BahdanauAttention(nn.Module):
         #   before softmax, so they get ~0 weight.
         
         if mask is not None:
-            scores = scores.masked_fill(mask == 0, -1e10)        
+            scores = scores.masked_fill(mask == 0, -1e4)
 
         # 5: Apply softmax over the src_len dimension to get attn_weights
         attn_weights = F.softmax(scores, dim=1)
         
-        # 6: Compute context vector as weighted sum:        
+        # 6: Compute context vector as weighted sum:
         context = torch.bmm(attn_weights.unsqueeze(1), encoder_outputs).squeeze(1)
         
         return context, attn_weights

@@ -128,7 +128,7 @@ def prepare_parallel_data(src_path: str,
                           ratios=(0.9, 0.05, 0.05),
                           seed: int = 42,
                           save: bool = True,
-                          max_len: int = 100):
+                          max_len: int = 30):
     """Run full preprocessing pipeline and optionally save outputs.
 
     Returns: (src_vocab, tgt_vocab, train, val, test)
@@ -143,7 +143,7 @@ def prepare_parallel_data(src_path: str,
 
     # in prepare_parallel_data:
     encoded = encode_pairs(pairs, src_vocab, tgt_vocab)
-    encoded = filter_by_length(encoded)  # filter out very long sentences to speed up training and avoid memory issues
+    encoded = filter_by_length(encoded)  # filter out long sentences to speed up training
     train, val, test = train_val_test_split(encoded, ratios=ratios, seed=seed)
 
     if save:
