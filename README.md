@@ -179,7 +179,7 @@ Used to train and compare the RNN and Transformer approaches.
 
 ### `notebooks/03_results_analysis.ipynb`
 
-Reserved for result inspection, qualitative examples, and comparison plots.
+Reserved for additional result inspection, qualitative examples, and comparison plots. (currently empty because all results and experiments are in the previous notebook)
 
 ## Module Guide
 
