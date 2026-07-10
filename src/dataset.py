@@ -135,16 +135,23 @@ def prepare_parallel_data(src_path: str,
     - `train`, `val`, `test` are lists of (src_ids, tgt_ids).
     """
     pairs = read_parallel_corpus(src_path, tgt_path)
-    src_vocab, tgt_vocab = build_vocab_from_pairs(pairs, min_freq=min_freq)
+
+    # Split the raw text pairs before building the vocabulary to prevent data leaks
+    train_pairs, val_pairs, test_pairs = train_val_test_split(pairs, ratios=ratios, seed=seed)
+
+    # Build vocabularies only from the training pairs
+    src_vocab, tgt_vocab = build_vocab_from_pairs(train_pairs, min_freq=min_freq)
 
     def filter_by_length(encoded, max_len=max_len):
         return [(s, t) for s, t in encoded
                 if len(s) <= max_len and len(t) <= max_len]
 
-    # in prepare_parallel_data:
-    encoded = encode_pairs(pairs, src_vocab, tgt_vocab)
-    encoded = filter_by_length(encoded)  # filter out long sentences to speed up training
-    train, val, test = train_val_test_split(encoded, ratios=ratios, seed=seed)
+    train_encoded = encode_pairs(train_pairs, src_vocab, tgt_vocab)
+    val_encoded = encode_pairs(val_pairs, src_vocab, tgt_vocab)
+    test_encoded = encode_pairs(test_pairs, src_vocab, tgt_vocab)
+    train = filter_by_length(train_encoded)
+    val = filter_by_length(val_encoded)
+    test = filter_by_length(test_encoded)
 
     if save:
         os.makedirs(outdir, exist_ok=True)

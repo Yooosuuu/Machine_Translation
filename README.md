@@ -69,7 +69,7 @@ The project depends on:
 - `nltk`
 - `jupyter`
 - `ipykernel`
-- `comet-framework`
+- `unbabel-comet`
 
 ## Data
 
